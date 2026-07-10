@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <pthread.h>
+
+void *odd()
+{
+    printf("1\n3\n5\n");
+    return NULL;
+}
+
+void *even()
+{
+    printf("2\n4\n6\n");
+    return NULL;
+}
+
+int main()
+{
+    pthread_t t1, t2;
+
+    pthread_create(&t1, NULL, odd, NULL);
+    pthread_create(&t2, NULL, even, NULL);
+
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
+
+    return 0;
+}
