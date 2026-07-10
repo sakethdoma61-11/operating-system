@@ -1,0 +1,25 @@
+#include <stdio.h>
+
+int main()
+{
+    int bt[5], wt[5], n, i, sum = 0;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    printf("Enter burst times:\n");
+    for(i = 0; i < n; i++)
+        scanf("%d", &bt[i]);
+
+    wt[0] = 0;
+
+    for(i = 1; i < n; i++)
+        wt[i] = wt[i - 1] + bt[i - 1];
+
+    for(i = 0; i < n; i++)
+        sum += wt[i];
+
+    printf("Average Waiting Time = %.2f", (float)sum / n);
+
+    return 0;
+}
