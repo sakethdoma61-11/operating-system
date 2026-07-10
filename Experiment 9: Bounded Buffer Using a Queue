@@ -1,0 +1,15 @@
+#include <stdio.h>
+
+int q[3], f = 0, r = 0;
+
+int main()
+{
+    q[r++] = 10;
+    q[r++] = 20;
+    q[r++] = 30;
+
+    printf("Consumed: %d\n", q[f++]);
+    printf("Consumed: %d\n", q[f++]);
+
+    return 0;
+}
