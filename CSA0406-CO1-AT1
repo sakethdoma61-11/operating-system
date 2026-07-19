@@ -1,0 +1,166 @@
+NAME:DOMA SAKETH
+REG NO:192525018
+Question 1
+
+(a) Identify the type of Operating System suitable for this environment and justify your answer.
+
+A Multi-User Operating System (Linux) is the most suitable operating system for a university computer laboratory where multiple students execute programs simultaneously on a shared server. A multi-user operating system allows many users to access the same computer system at the same time without affecting each other's work. Each user has a separate login account, memory space, files, and permissions. The operating system efficiently manages CPU scheduling, memory allocation, process execution, and file access among all users. Linux also provides security, multitasking, process isolation, and resource sharing, making it reliable and efficient for educational institutions and enterprise environments.
+
+(b) State any two responsibilities of the kernel in managing multiple user processes.
+
+1. Process Management
+The kernel is responsible for creating, scheduling, synchronizing, and terminating processes. It allocates CPU time to each process using scheduling algorithms so that multiple users can run their programs efficiently without conflicts.
+
+2. Memory Management
+The kernel allocates and deallocates memory to processes whenever required. It also protects the memory of one process from being accessed by another process, ensuring system security and stability.
+
+(c) Write a C-based system call sequence (or pseudo-code).
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+    pid_t pid = fork();
+
+    if(pid == 0)
+        printf("Child PID = %d\n", getpid());
+    else
+        printf("Parent PID = %d\n", getpid());
+
+    return 0;
+}
+
+Question 2
+
+(a) List the system calls required for file creation, writing, reading, and closing.
+
+The system calls required are:
+
+open()
+write()
+read()
+close()
+
+These system calls are used to create or open a file, write data into the file, read data from the file, and finally close the file after completing the operations.
+
+(b) Explain the purpose of any two file management system calls.
+
+open()
+The open() system call opens an existing file or creates a new file if it does not exist. It returns a file descriptor, which is used by other system calls to access the file.
+
+write()
+The write() system call writes data from the program into the specified file. It stores the information permanently in secondary storage and returns the number of bytes written successfully.
+
+(c) Write a C-based system call sequence (or pseudo-code).
+
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int fd = open("student.txt", O_CREAT | O_WRONLY, 0644);
+    write(fd, "Saketh", 6);
+    close(fd);
+    return 0;
+}
+
+Question 3
+
+(a) List the system calls required to complete this operation.
+
+The following system calls are required:
+
+open()
+read()
+write()
+close()
+
+The source file is opened in read mode, the destination file is opened in write mode, data is read from the source file into a buffer, written into the destination file, and finally both files are closed.
+
+(b) Explain the purpose of any two of these system calls.
+
+read()
+The read() system call reads data from a file and stores it in a memory buffer. It returns the number of bytes successfully read from the file.
+
+write()
+The write() system call transfers the contents of the memory buffer into another file. It returns the number of bytes written successfully.
+
+(c) Write a pseudo-code or C-based system call sequence.
+
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    char buffer[100];
+    int src = open("a.txt", O_RDONLY);
+    int dest = open("b.txt", O_CREAT | O_WRONLY, 0644);
+
+    int n = read(src, buffer, 100);
+    write(dest, buffer, n);
+
+    close(src);
+    close(dest);
+
+    return 0;
+}
+
+Question 4
+
+(a) State the purpose of the fork() and exec() system calls.
+
+fork()
+The fork() system call creates a new child process by duplicating the parent process. After execution, both parent and child continue independently. It returns 0 in the child process and the child process ID in the parent process.
+
+exec()
+The exec() system call replaces the currently running process with a new program. It loads the new program into memory and begins executing it without creating another process.
+
+(b) Explain the role of the wait() system call.
+
+The wait() system call suspends the execution of the parent process until the child process completes its execution. It ensures proper synchronization between parent and child processes, prevents zombie processes, and allows the parent to obtain the child's exit status.
+
+(c) Write a system call sequence using fork(), exec(), and wait().
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main() {
+
+    if(fork() == 0)
+        execl("/bin/ls", "ls", NULL);
+    else
+        wait(NULL);
+
+    return 0;
+}
+
+Question 5
+
+(a) Explain the importance of file management in an operating system.
+
+File management is one of the most important functions of an operating system. It organizes files and directories, provides efficient storage and retrieval of data, controls file permissions, manages free disk space, and ensures data security. It also supports file creation, deletion, copying, renaming, and backup operations. Proper file management improves system performance and prevents unauthorized access to user data.
+
+(b) State the purpose of the open() and close() system calls.
+
+open()
+The open() system call opens an existing file or creates a new file and returns a file descriptor that is used for reading or writing operations.
+
+close()
+The close() system call closes the opened file after all operations are completed. It releases the file descriptor, saves any pending changes, and frees the system resources associated with the file.
+
+(c) Write a C-based system call sequence to open a file, read its contents, and close it.
+
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+
+    char buffer[100];
+
+    int fd = open("student.txt", O_RDONLY);
+
+    read(fd, buffer, 100);
+
+    close(fd);
+
+    return 0;
+}
