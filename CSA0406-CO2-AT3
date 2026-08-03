@@ -1,0 +1,200 @@
+Q1. Deadlock Debugging (10 Marks)
+Problem Identification
+
+In the given pseudo-code:
+
+Process P1
+
+Locks Resource R1
+Waits for 100 ms
+Requests Resource R2
+
+Process P2
+
+Locks Resource R2
+Waits for 100 ms
+Requests Resource R1
+
+Here, P1 is holding R1 and waiting for R2, while P2 is holding R2 and waiting for R1. Neither process releases its resource, causing both to wait forever.
+
+Deadlock Condition
+
+The deadlock occurs because of the Circular Wait condition.
+
+The four Coffman conditions are present:
+
+Mutual Exclusion
+Hold and Wait
+No Preemption
+Circular Wait
+
+Since all four conditions are satisfied, the system enters a deadlock.
+
+Optimization
+
+To eliminate deadlock, both processes should acquire resources in the same order.
+
+Example:
+
+P1: Lock R1 → Lock R2
+
+P2: Lock R1 → Lock R2
+
+This removes the circular wait condition.
+
+Another solution is to use resource ordering or try-lock mechanisms.
+
+Analysis
+
+Using a fixed resource allocation order prevents deadlock, improves resource utilization, and ensures smooth execution of processes.
+
+Q2. CPU Utilization Problem (10 Marks)
+Problem Identification
+
+The CPU utilization is only 30% even though many processes are ready.
+
+The scheduler log shows:
+
+Ready → Waiting → Ready → Waiting
+
+This indicates that processes spend most of their time waiting for I/O operations.
+
+Debugging
+
+The CPU becomes idle because processes are blocked while waiting for disk or network operations.
+
+Frequent transitions between Ready and Waiting also increase context switching overhead.
+
+As a result:
+
+CPU remains idle.
+Throughput decreases.
+Response time increases.
+Optimization
+
+Optimization 1
+Increase the degree of multiprogramming so that when one process waits for I/O, another process can use the CPU.
+
+Optimization 2
+Use asynchronous I/O or buffering to reduce waiting time.
+
+Optimization 3
+Improve scheduling using Multilevel Feedback Queue or Priority Scheduling.
+
+Analysis
+
+Reducing I/O waiting keeps the CPU busy, increases utilization, improves throughput, and reduces response time.
+
+Q3. Memory Bottleneck Debugging (10 Marks)
+Problem Identification
+
+Memory Usage:
+
+Code = 5 MB
+Heap = 150 MB
+Stack = 1 MB per thread
+Threads = 25
+RAM = 2 GB
+
+The application experiences frequent page faults.
+
+Cause
+
+Each thread requires stack memory.
+
+25 × 1 MB = 25 MB Stack
+
+Large heap allocation and multiple threads increase memory usage.
+
+Frequent page faults occur because required pages are not available in RAM.
+
+Optimization
+
+Optimization 1
+Reduce the number of threads using a thread pool.
+
+Optimization 2
+Optimize heap memory by freeing unused memory.
+
+Optimization 3
+Increase physical memory or reduce unnecessary allocations.
+
+Analysis
+
+Reducing page faults improves execution speed, memory efficiency, and overall system performance.
+
+Q4. Starvation Debugging (10 Marks)
+Problem Identification
+
+Scheduler:
+
+Q1 → Interactive
+
+Q2 → System
+
+Q3 → Batch
+
+P5 belongs to Q3.
+
+Since Q1 always has processes, P5 never gets CPU time.
+
+Cause
+
+This is Starvation.
+
+Low-priority processes continuously wait because higher-priority queues always execute first.
+
+Optimization
+
+Use Aging.
+
+Aging gradually increases the priority of waiting processes.
+
+Eventually, P5 moves to a higher-priority queue and gets CPU time.
+
+Another solution is to use a Multilevel Feedback Queue.
+
+Analysis
+
+Aging ensures fairness, prevents starvation, and improves CPU utilization.
+
+Q5. Context-Switch Overhead Debugging (10 Marks)
+Problem Identification
+
+Given:
+
+Context Switches = 20,000/sec
+Burst Time = 2 ms
+Time Quantum = 1 ms
+High I/O frequency
+Cause
+
+The time quantum is smaller than the burst time.
+
+Every process is interrupted before completion.
+
+High I/O also causes frequent switching.
+
+This results in excessive context switches.
+
+Optimization
+
+Optimization 1
+Increase the time quantum from 1 ms to 5–10 ms.
+
+This allows processes to complete more work before switching.
+
+Optimization 2
+Reduce unnecessary thread creation and optimize I/O operations.
+
+Use asynchronous I/O where possible.
+
+Analysis
+
+Benefits:
+
+Fewer context switches.
+Lower CPU overhead.
+Better throughput.
+Improved CPU utilization.
+Faster execution.
