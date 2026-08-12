@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+
+int main() {
+
+    int choice, fd;
+    char id[20], name[50], disease[50];
+    char record[150], buffer[1000];
+
+    while (1) {
+
+        printf("\n1. Add Patient");
+        printf("\n2. Search Patient");
+        printf("\n3. Update Patient");
+        printf("\n4. Delete Patient");
+        printf("\n5. Exit");
+        printf("\nChoice: ");
+        scanf("%d", &choice);
+
+        if (choice == 1) {
+
+            fd = open("patients.txt",
+                      O_CREAT | O_WRONLY | O_APPEND, 0644);
+
+            printf("Patient ID: ");
+            scanf("%s", id);
+
+            printf("Patient Name: ");
+            scanf("%s", name);
+
+            printf("Disease: ");
+            scanf("%s", disease);
+
+            sprintf(record, "%s %s %s\n",
+                    id, name, disease);
+
+            write(fd, record, strlen(record));
+            close(fd);
+
+            printf("Patient added.\n");
+        }
+
+        else if (choice == 2) {
+
+            fd = open("patients.txt", O_RDONLY);
+
+            int n = read(fd, buffer, sizeof(buffer) - 1);
+            buffer[n] = '\0';
+
+            printf("\n%s", buffer);
+
+            close(fd);
+        }
+
+        else if (choice == 3) {
+            printf("Update operation: rewrite the required record using a temporary file.\n");
+        }
+
+        else if (choice == 4) {
+            printf("Delete operation: remove the required record using a temporary file.\n");
+        }
+
+        else if (choice == 5)
+            break;
+
+        else
+            printf("Invalid choice.\n");
+    }
+
+    return 0;
+}
