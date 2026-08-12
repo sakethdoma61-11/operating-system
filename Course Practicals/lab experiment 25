@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <time.h>
+#include <string.h>
+
+int main() {
+
+    int fd;
+    time_t now;
+    char log[200];
+
+    fd = open("system.log", O_WRONLY | O_CREAT | O_APPEND, 0644);
+
+    if (fd < 0) {
+        perror("File");
+        return 1;
+    }
+
+    now = time(NULL);
+
+    sprintf(log,
+            "Date/Time: %sProcess ID: %d\n",
+            ctime(&now),
+            getpid());
+
+    write(fd, log, strlen(log));
+
+    close(fd);
+
+    printf("Log entry created.\n");
+
+    return 0;
+}
