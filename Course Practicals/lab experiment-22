@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <string.h>
+
+int main() {
+    char command[100];
+
+    while (1) {
+        printf("myshell$ ");
+        fgets(command, sizeof(command), stdin);
+
+        command[strcspn(command, "\n")] = '\0';
+
+        if (strcmp(command, "exit") == 0)
+            break;
+
+        pid_t pid = fork();
+
+        if (pid == 0) {
+            execlp(command, command, NULL);
+            perror("Command failed");
+            return 1;
+        }
+        else {
+            wait(NULL);
+        }
+    }
+
+    return 0;
+}
+
+myshell$ pwd
+/home/student
+
+myshell$ date
+Wed Aug 12 11:30:20 IST 2026
+
+myshell$ ls
+file.txt
+student.c
+output.txt
+
+myshell$ whoami
+student
+
+myshell$ exit
