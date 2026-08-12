@@ -1,0 +1,40 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+
+int main() {
+
+    int fd;
+    char account[30], type[20], amount[30];
+    char transaction[150];
+
+    fd = open("transactions.log",
+              O_CREAT | O_WRONLY | O_APPEND, 0644);
+
+    if (fd < 0) {
+        perror("File");
+        return 1;
+    }
+
+    printf("Account Number: ");
+    scanf("%s", account);
+
+    printf("Transaction Type: ");
+    scanf("%s", type);
+
+    printf("Amount: ");
+    scanf("%s", amount);
+
+    sprintf(transaction,
+            "Account: %s | Type: %s | Amount: %s\n",
+            account, type, amount);
+
+    write(fd, transaction, strlen(transaction));
+
+    close(fd);
+
+    printf("Transaction logged successfully.\n");
+
+    return 0;
+}
