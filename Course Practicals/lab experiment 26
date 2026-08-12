@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+
+int main() {
+
+    int fd;
+    char name[50], status[20], record[100];
+
+    fd = open("attendance.txt",
+              O_CREAT | O_WRONLY | O_APPEND, 0644);
+
+    if (fd < 0) {
+        perror("File");
+        return 1;
+    }
+
+    printf("Enter Employee Name: ");
+    scanf("%s", name);
+
+    printf("Enter Attendance (Present/Absent): ");
+    scanf("%s", status);
+
+    sprintf(record,
+            "Employee: %s | Attendance: %s\n",
+            name, status);
+
+    write(fd, record, strlen(record));
+
+    close(fd);
+
+    printf("Attendance saved successfully.\n");
+
+    return 0;
+}
