@@ -1,47 +1,61 @@
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include <string.h>
 
 int main() {
-    char command[100];
+    int block[20], process[20], allocation[20];
+    int m, n, i, j, best;
 
-    while (1) {
-        printf("myshell$ ");
-        fgets(command, sizeof(command), stdin);
+    printf("Enter number of memory blocks: ");
+    scanf("%d", &m);
 
-        command[strcspn(command, "\n")] = '\0';
+    printf("Enter block sizes:\n");
+    for(i = 0; i < m; i++)
+        scanf("%d", &block[i]);
 
-        if (strcmp(command, "exit") == 0)
-            break;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
 
-        pid_t pid = fork();
+    printf("Enter process sizes:\n");
+    for(i = 0; i < n; i++)
+        scanf("%d", &process[i]);
 
-        if (pid == 0) {
-            execlp(command, command, NULL);
-            perror("Command failed");
-            return 1;
+    for(i = 0; i < n; i++) {
+        allocation[i] = -1;
+        best = -1;
+
+        for(j = 0; j < m; j++) {
+            if(block[j] >= process[i]) {
+                if(best == -1 || block[j] < block[best])
+                    best = j;
+            }
         }
-        else {
-            wait(NULL);
+
+        if(best != -1) {
+            allocation[i] = best;
+            block[best] -= process[i];
         }
+    }
+
+    printf("\nProcess\tSize\tBlock\n");
+    for(i = 0; i < n; i++) {
+        printf("P%d\t%d\t", i + 1, process[i]);
+
+        if(allocation[i] != -1)
+            printf("B%d\n", allocation[i] + 1);
+        else
+            printf("Not Allocated\n");
     }
 
     return 0;
 }
+Enter number of memory blocks: 5
+Enter block sizes:
+100 500 200 300 600
+Enter number of processes: 4
+Enter process sizes:
+212 417 112 426
 
-myshell$ pwd
-/home/student
-
-myshell$ date
-Wed Aug 12 11:30:20 IST 2026
-
-myshell$ ls
-file.txt
-student.c
-output.txt
-
-myshell$ whoami
-student
-
-myshell$ exit
+Process Size Block
+P1      212   B4
+P2      417   B2
+P3      112   B3
+P4      426   B5
