@@ -1,58 +1,30 @@
 #include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/wait.h>
+#include <pthread.h>
+
+void *function(void *arg) {
+    printf("Thread is running\n");
+    pthread_exit(NULL);
+}
 
 int main() {
+    pthread_t t1, t2;
 
-    int parent_to_child[2];
-    int child_to_parent[2];
+    pthread_create(&t1, NULL, function, NULL);
+    pthread_create(&t2, NULL, function, NULL);
 
-    pipe(parent_to_child);
-    pipe(child_to_parent);
+    if(pthread_equal(t1, t2))
+        printf("Threads are equal\n");
+    else
+        printf("Threads are not equal\n");
 
-    pid_t pid = fork();
+    pthread_join(t1, NULL);
+    pthread_join(t2, NULL);
 
-    if (pid == 0) {
-
-        char message[100];
-
-        close(parent_to_child[1]);
-        close(child_to_parent[0]);
-
-        read(parent_to_child[0], message, sizeof(message));
-        printf("Child received: %s\n", message);
-
-        strcpy(message, "Hello Parent!");
-        write(child_to_parent[1],
-              message, strlen(message) + 1);
-
-        close(parent_to_child[0]);
-        close(child_to_parent[1]);
-    }
-
-    else {
-
-        char message[100];
-
-        close(parent_to_child[0]);
-        close(child_to_parent[1]);
-
-        strcpy(message, "Hello Child!");
-
-        write(parent_to_child[1],
-              message, strlen(message) + 1);
-
-        read(child_to_parent[0],
-             message, sizeof(message));
-
-        printf("Parent received: %s\n", message);
-
-        close(parent_to_child[1]);
-        close(child_to_parent[0]);
-
-        wait(NULL);
-    }
+    printf("Threads completed\n");
 
     return 0;
 }
+Thread is running
+Thread is running
+Threads are not equal
+Threads completed
