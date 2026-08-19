@@ -1,34 +1,52 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <time.h>
-#include <string.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 int main() {
-
     int fd;
-    time_t now;
-    char log[200];
+    struct stat st;
+    DIR *dir;
+    struct dirent *entry;
 
-    fd = open("system.log", O_WRONLY | O_CREAT | O_APPEND, 0644);
+    fd = open("test.txt", O_CREAT | O_RDWR, 0644);
 
-    if (fd < 0) {
-        perror("File");
+    if(fd < 0) {
+        printf("File open error\n");
         return 1;
     }
 
-    now = time(NULL);
+    printf("File descriptor: %d\n", fd);
 
-    sprintf(log,
-            "Date/Time: %sProcess ID: %d\n",
-            ctime(&now),
-            getpid());
+    fcntl(fd, F_SETFL, O_APPEND);
 
-    write(fd, log, strlen(log));
+    lseek(fd, 0, SEEK_END);
+    printf("File pointer moved to end\n");
+
+    if(stat("test.txt", &st) == 0)
+        printf("File size: %ld bytes\n", st.st_size);
 
     close(fd);
 
-    printf("Log entry created.\n");
+    dir = opendir(".");
+
+    if(dir != NULL) {
+        printf("\nDirectory contents:\n");
+
+        while((entry = readdir(dir)) != NULL)
+            printf("%s\n", entry->d_name);
+
+        closedir(dir);
+    }
 
     return 0;
 }
+File descriptor: 3
+File pointer moved to end
+File size: 0 bytes
+
+Directory contents:
+.
+..
+test.txt
