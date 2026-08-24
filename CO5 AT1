@@ -1,0 +1,510 @@
+NAME:DOMA SAKETH
+REG.NO:192525018
+
+QUESTION 1 :
+A server with a total storage capacity of 50 GB needs to effectively manage space for
+rapidly growing system logs, user files, and application data. Analyze the scenario and
+design an optimized Linux file system layout, incorporating suitable partitioning
+techniques and storage management tools (such as log rotation), to ensure efficient
+utilization of disk space and maintain system stability. The solution must ensure that
+log files do not exceed 10 GB and that critical services continue to operate without
+interruption due to disk space exhaustion.
+
+ANSWER:
+
+
+A server has a total storage capacity of 50 GB and needs to store system logs, user files, and application data. 
+Since logs are growing rapidly, the storage must be divided properly so that logs do not consume the entire disk and affect critical services.
+
+A suitable partition layout is:
+
+* `/boot` – 1 GB: Stores boot and kernel files.
+* `/` – 10 GB: Stores the Linux operating system and essential system files.
+* `/var` – 8 GB: Stores variable data such as packages, caches, and service data.
+* `/var/log` – 10 GB: Dedicated space for system and application logs.
+* `/home` – 8 GB: Stores user files.
+* `/opt` – 8 GB: Stores application data.
+* Swap – 4 GB: Provides virtual memory when RAM is insufficient.
+* Free/Reserve – 1 GB: Keeps emergency space available.
+
+Total = 1 + 10 + 8 + 10 + 8 + 8 + 4 + 1 = 50 GB.
+
+A separate `/var/log` partition is useful because log files cannot fill the root filesystem. The maximum log storage is limited to 10 GB as required.
+
+The `logrotate` utility can be used to automatically rotate, compress, and remove old log files. For example:
+
+```bash
+/var/log/*.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+}
+```
+
+This rotates logs daily, keeps a limited number of old logs, and compresses them to save space.
+
+Disk usage can be monitored using:
+
+```bash
+df -h
+du -sh /var/log
+```
+
+If the log partition approaches 80–90% usage, an administrator can take action before the disk becomes completely full.
+
+Other techniques include deleting unnecessary temporary files, compressing old data, monitoring disk usage regularly, and keeping emergency free space.
+
+Therefore, separating `/var/log`, using proper partitions, monitoring disk usage, and implementing `logrotate` ensures that log files do not exceed 10 GB and prevents disk exhaustion.
+This allows critical services to continue operating without interruption.
+
+
+
+QUESTION 2:
+A Linux system handling high CPU workloads suffers from frequent context switching
+delays. Given that hardware upgrades are not possible and real-time processing must
+be supported, evaluate kernel-level optimization techniques such as scheduler tuning
+and the use of kernel modules—to improve overall system performance.
+
+ANSWER:
+
+1. Monitor CPU Usage
+
+The following commands can be used:
+
+
+top
+
+or:
+
+ps -eo pid,ppid,ni,pri,%cpu,cmd --sort=-%cpu | head
+
+These commands identify processes consuming high CPU resources.
+
+2. Scheduler Priority
+
+The priority of a process can be changed using `renice`.
+
+For example:
+
+
+sudo renice -5 -p 1234
+
+
+Here, `1234` is the process ID. A lower nice value gives the process higher priority.
+
+The current priority can be checked using:
+
+
+ps -p 1234 -o pid,ni,pri,cmd
+
+3. CPU Affinity
+
+CPU affinity allows a process to run only on selected CPU cores.
+
+taskset -c 2,3 ./application
+
+
+For an existing process:
+
+
+sudo taskset -cp 2,3 1234
+
+
+This can reduce unnecessary CPU migration and improve cache efficiency.
+
+4. Real-Time Scheduling
+
+Linux provides real-time scheduling policies such as `SCHED_FIFO` and `SCHED_RR`.
+
+For example:
+
+
+sudo chrt -f 80 ./realtime_app
+
+The scheduling policy can be checked using:
+
+
+chrt -p 1234
+
+
+Real-time scheduling should be used carefully because giving excessive priority to one process can affect other system processes.
+
+5. Kernel Module Management
+
+Currently loaded kernel modules can be viewed using:
+
+
+ls mod
+
+
+Detailed information about a module can be obtained using:
+
+
+modinfo module_name
+
+
+If a module is unnecessary and safe to remove:
+
+
+sudo modprobe -r module_name
+
+
+6. Disable Unnecessary Services
+
+Running services can be checked using:
+
+
+systemctl list-units --type=service --state=running
+
+
+An unnecessary service can be stopped using:
+
+
+sudo systemctl stop service_name
+
+
+7. Kernel Parameter Monitoring
+
+Kernel parameters can be viewed using:
+
+
+sysctl -a
+
+
+A particular parameter can be checked using:
+
+
+sysctl parameter_name
+
+
+Kernel parameters should only be modified after understanding their effect.
+
+Therefore, scheduler tuning, process priority adjustment, CPU affinity, real-time scheduling, kernel-module management, 
+and removal of unnecessary services can reduce context switching and improve CPU performance without requiring hardware upgrades.
+
+
+
+QUESTION 3:
+An administrator must process 1 million log entries per day using only shell scripting.
+Analyze the problem and design an efficient solution using optimized Linux commands
+that ensures the script completes within 2 minutes. Justify the choice of commands
+used for achieving high performance.
+
+ANSWER:
+The administrator must process 1 million log entries per day using only shell scripting. The script must complete within 2 minutes. 
+Therefore, efficient Linux commands should be used instead of slow line-by-line processing.
+
+The most suitable commands are awk, grep, sort, uniq, wc, and xargs.
+
+Inefficient Method
+
+The following method should be avoided for large files:
+
+while read line
+do
+    grep "ERROR" <<< "$line"
+done < server.log
+
+This repeatedly starts commands and creates unnecessary overhead.
+
+Efficient Method Using AWK
+
+To count ERROR messages:
+
+awk '$3=="ERROR" {count++} END {print "Total Errors:", count}' server.log
+
+To count different log levels:
+
+awk '{count[$3]++}
+END {
+    for (level in count)
+        print level, count[level]
+}' server.log
+Using grep
+
+To count ERROR entries directly:
+
+grep -c "ERROR" server.log
+
+To count WARNING entries:
+
+grep -c "WARNING" server.log
+Using sort and uniq
+
+To count repeated IP addresses:
+
+awk '{print $4}' server.log | sort | uniq -c | sort -nr
+
+This extracts the required field, sorts it, counts duplicates, and sorts the result numerically.
+
+Complete Shell Script
+#!/bin/bash
+
+LOGFILE="server.log"
+
+echo "Processing log file..."
+
+echo "Total lines:"
+wc -l < "$LOGFILE"
+
+echo "ERROR count:"
+grep -c "ERROR" "$LOGFILE"
+
+echo "WARNING count:"
+grep -c "WARNING" "$LOGFILE"
+
+echo "Log levels:"
+awk '{count[$3]++}
+END {
+    for (level in count)
+        print level, count[level]
+}' "$LOGFILE"
+
+echo "Processing completed."
+
+The script can be executed using:
+
+chmod +x process_logs.sh
+./process_logs.sh
+Performance Optimization
+
+For large sorting operations:
+
+LC_ALL=C sort server.log
+
+If multiple independent files need to be processed, parallel processing can be used:
+
+find /logs -name "*.log" -print0 |
+xargs -0 -P 4 -n 1 awk '{count[$3]++} END {for(i in count) print i,count[i]}'
+
+Here, -P 4 allows four processes to run in parallel.
+
+Why These Commands Are Fast:
+awk processes records in a single pass.
+grep provides optimized pattern matching.
+sort and uniq are optimized Linux utilities.
+Pipelines avoid unnecessary intermediate files.
+Avoiding shell loops reduces process creation overhead.
+Parallel processing can utilize multiple CPU cores.
+
+Therefore, using optimized commands such as awk, grep, sort, and uniq instead of processing each line individually provides high performance. 
+This approach is suitable for processing 1 million log entries and can be optimized to meet the 2-minute requirement.
+
+
+QUESTION 4:
+A Linux system runs multiple background services, where a faulty process is
+consuming 90% of CPU resources. Without restarting the system and while ensuring
+critical services remain unaffected, analyze the situation and propose a process
+management strategy using appropriate Linux tools to identify, monitor, and control
+the faulty process.
+
+
+ANSWER:
+A Linux system has multiple background services, but one faulty process is consuming 90% of CPU resources. 
+The administrator must control this process without restarting the system and without affecting critical services.
+
+Step 1: Identify the Faulty Process
+
+The top command can be used:
+
+top
+
+Another method is:
+
+ps aux --sort=-%cpu | head
+
+output:
+
+USER       PID    %CPU   COMMAND
+user      2456    90.2  faulty_app
+root      1020     5.3  system_service
+
+Here, PID 2456 is the faulty process.
+
+Step 2: Monitor the Process
+
+The process can be monitored using:
+
+top -p 2456
+
+or:
+
+pidstat -p 2456 1
+
+This shows whether the CPU usage remains high.
+
+Step 3: Reduce Process Priority
+
+Instead of immediately terminating the process, its priority can be reduced:
+
+sudo renice 10 -p 2456
+
+The priority can be checked using:
+
+ps -p 2456 -o pid,ni,pri,%cpu,cmd
+
+This allows critical processes to receive more CPU time.
+
+Step 4: Restrict CPU Affinity
+
+The process can be restricted to a particular CPU core:
+
+sudo taskset -cp 2 2456
+
+This prevents the faulty process from using all CPU cores.
+
+Step 5: Check Whether It Is a Critical Service
+
+Before stopping the process, the administrator should identify what it belongs to:
+
+ps -fp 2456
+
+If it is associated with a system service:
+
+systemctl status service_name
+
+Critical services should not be terminated unnecessarily.
+
+Step 6: Gracefully Terminate the Process
+
+If the process continues causing problems:
+
+kill 2456
+
+This sends SIGTERM and allows the application to terminate gracefully.
+
+Check whether it has stopped:
+
+ps -p 2456
+Step 7: Force Termination if Required
+
+If the process does not respond:
+
+kill -9 2456
+
+SIGKILL should be used only as a last resort.
+
+Process Management Strategy
+Identify process
+      ↓
+Monitor CPU usage
+      ↓
+Reduce priority using renice
+      ↓
+Restrict CPU using taskset
+      ↓
+Check critical-service dependency
+      ↓
+Terminate gracefully using kill
+      ↓
+Use kill -9 only if necessary
+
+Therefore, top, ps, pidstat, renice, taskset, and kill provide a complete process-management strategy. 
+The faulty process can be controlled without restarting the server while critical services remain operational.
+
+
+
+QUESTION 5:
+A physical server must host 5 virtual machines with a total available RAM of 16 GB.
+Each VM requires a minimum of 2 GB, while the host operating system needs 4 GB.
+Analyze the scenario and propose an efficient resource allocation strategy using
+virtualization concepts to ensure all virtual machines operate smoothly under the
+given constraints.
+
+
+ANSWER:
+A physical server has 16 GB of RAM and must host 5 virtual machines. Each VM requires a minimum of 2 GB, while the host operating system requires 4 GB.
+
+RAM Calculation
+
+RAM required by 5 VMs:
+
+5 × 2 GB = 10 GB
+
+RAM required by the host:
+
+4 GB
+
+Total minimum requirement:
+
+10 GB + 4 GB = 14 GB
+
+Available RAM:
+
+16 GB
+
+Remaining RAM:
+
+16 GB - 14 GB = 2 GB
+
+Therefore, the requirements can be satisfied.
+
+*Proposed Allocation
+Resource	  RAM
+Host OS	    4 GB
+VM1	        2 GB
+VM2	        2 GB
+VM3	        2 GB
+VM4	        2 GB
+VM5	        2 GB
+Dynamic/Safety Reserve	2 GB
+Total	16 GB
+
+Each VM receives its required minimum of 2 GB, and the host receives 4 GB.
+
+The remaining 2 GB should initially be kept as a reserve.
+
+Dynamic Memory Allocation
+
+If the virtualization platform supports dynamic memory, additional memory can be assigned to a VM when required.
+
+For example:
+
+VM1 → 2 GB
+VM2 → 2 GB
+VM3 → 2 GB
+VM4 → 2 GB
+VM5 → 2 GB
+Host → 4 GB
+Reserve → 2 GB
+
+If VM3 requires additional memory, the hypervisor can allocate available reserve memory to VM3.
+
+Memory Ballooning
+
+Memory ballooning allows the hypervisor to reclaim unused memory from one VM and provide it to another VM.
+
+Example:
+
+VM1 has unused memory
+        ↓
+Hypervisor reclaims memory
+        ↓
+VM4 requires more memory
+        ↓
+Memory is allocated to VM4
+Avoid Excessive Overcommitment
+
+The administrator should not allocate less than 2 GB to any VM because 2 GB is the minimum requirement. 
+Excessive memory overcommitment can cause swapping and reduce performance.
+
+Final Calculation
+Host OS = 4 GB
+
+VM1 = 2 GB
+VM2 = 2 GB
+VM3 = 2 GB
+VM4 = 2 GB
+VM5 = 2 GB
+
+Reserve = 2 GB
+
+Total = 4 + (5 × 2) + 2
+      = 4 + 10 + 2
+      = 16 GB
+
+Therefore, the server can successfully host all five virtual machines. 
+Giving each VM 2 GB, reserving 4 GB for the host, and keeping 2 GB for dynamic allocation provides an efficient and stable resource allocation strategy.
