@@ -1,0 +1,130 @@
+NAME:DOMA SAKETH
+REG.NO:192525018
+
+Q1. File System Space Management
+ANSWER:
+BEGIN
+SET threshold = 80%
+SET target_usage = 70%
+usage = GET_DISK_USAGE()
+IF usage > threshold THEN
+    PRINT "Disk usage exceeded 80%"
+    log_files = FIND_ALL_LOG_FILES()
+    SORT log_files BY age DESCENDING
+    FOR each file IN log_files DO
+        IF file IS OLD THEN
+            COMPRESS file
+        ELSE
+            ROTATE file
+        ENDIF
+        usage = GET_DISK_USAGE()
+        IF usage <= target_usage THEN
+            BREAK
+        ENDIF
+    ENDFOR
+    IF usage > threshold THEN
+        PRINT "Warning: Disk space is still low"
+    ELSE
+        PRINT "Disk usage restored to safe level"
+    ENDIF
+ELSE
+    PRINT "Disk usage is within safe limit"
+ENDIF
+END
+
+Q2. Priority-Based CPU Scheduling
+ANSWER:
+BEGIN
+INPUT process_list
+FOR each process IN process_list DO
+    INPUT process.priority
+    INPUT process.execution_time
+    SET process.completed = FALSE
+ENDFOR
+SORT process_list BY priority DESCENDING
+WHILE process_list IS NOT EMPTY DO
+    SELECT process WITH HIGHEST priority
+    ALLOCATE CPU TO process
+    EXECUTE process
+    IF process IS COMPLETED THEN
+        REMOVE process FROM process_list
+        PRINT "Process completed"
+    ELSE
+        REDUCE process.priority SLIGHTLY
+        RETURN process TO process_list
+        SORT process_list BY priority DESCENDING
+    ENDIF
+ENDWHILE
+PRINT "All processes completed"
+END
+
+Q3. RAM Resource Management for Virtual Machines
+ANSWER:
+BEGIN
+SET total_RAM = 16 GB
+SET host_reserved = 4 GB
+SET available_RAM = total_RAM - host_reserved
+SET min_RAM = 2 GB
+INPUT number_of_VMs
+FOR i = 1 TO number_of_VMs DO
+    IF available_RAM >= min_RAM THEN
+        ALLOCATE min_RAM TO VM[i]
+        available_RAM = available_RAM - min_RAM
+        PRINT "RAM allocated to VM", i
+    ELSE
+        PRINT "Insufficient RAM for VM", i
+        PRINT "VM allocation stopped"
+        BREAK
+    ENDIF
+ENDFOR
+PRINT "Remaining RAM =", available_RAM
+IF available_RAM < 0 THEN
+    PRINT "RAM allocation error"
+ELSE
+    PRINT "RAM allocation completed successfully"
+ENDIF
+END
+
+Q4. Hypervisor Selection
+ANSWER:
+BEGIN
+INPUT performance_required
+INPUT budget
+INPUT hardware_access
+IF performance_required = HIGH AND hardware_access = TRUE THEN
+    SELECT Type_1_Hypervisor
+    PRINT "Type 1 Hypervisor selected"
+    PRINT "Reason: Better performance and direct hardware access"
+ELSE IF budget = LOW THEN
+    SELECT Type_2_Hypervisor
+    PRINT "Type 2 Hypervisor selected"
+    PRINT "Reason: Lower cost and easier installation"ELSE IF performance_required = HIGH THEN
+    SELECT Type_1_Hypervisor
+    PRINT "Type 1 Hypervisor selected for better performance"
+ELSE
+    SELECT Type_2_Hypervisor
+    PRINT "Type 2 Hypervisor selected for general usage"
+ENDIF
+PRINT selected_hypervisor
+END
+
+Q5. CPU and Memory Resource Limiting
+ANSWER:
+BEGIN
+INPUT application_list
+FOR each app IN application_list DO
+    CREATE cgroup FOR app
+    SET CPU limit FOR app
+    SET memory limit FOR app
+    ASSIGN app_process TO cgroup
+    MONITOR CPU_USAGE(app)
+    MONITOR MEMORY_USAGE(app)
+    IF CPU_USAGE(app) > CPU limit THEN
+        THROTTLE CPU usage
+    ENDIF
+    IF MEMORY_USAGE(app) > memory limit THEN
+        LIMIT memory usage
+    ENDIF
+END FOR
+PRINT "CPU and memory limits applied successfully"
+END
