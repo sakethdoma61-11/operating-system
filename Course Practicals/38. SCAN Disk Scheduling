@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    int request[50], n, head, diskSize, direction;
+    int i, j, temp, total = 0;
+
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    printf("Enter requests:\n");
+
+    for (i = 0; i < n; i++)
+        scanf("%d", &request[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    printf("Enter disk size: ");
+    scanf("%d", &diskSize);
+
+    printf("Enter direction (1 for right, 0 for left): ");
+    scanf("%d", &direction);
+
+    for (i = 0; i < n - 1; i++) {
+        for (j = i + 1; j < n; j++) {
+            if (request[i] > request[j]) {
+                temp = request[i];
+                request[i] = request[j];
+                request[j] = temp;
+            }
+        }
+    }
+
+    printf("\nSeek Sequence: %d ", head);
+
+    if (direction == 1) {
+        for (i = 0; i < n; i++) {
+            if (request[i] >= head) {
+                total += abs(request[i] - head);
+                head = request[i];
+                printf("-> %d ", head);
+            }
+        }
+
+        total += abs((diskSize - 1) - head);
+        head = diskSize - 1;
+        printf("-> %d ", head);
+
+        for (i = n - 1; i >= 0; i--) {
+            if (request[i] < head) {
+                total += abs(request[i] - head);
+                head = request[i];
+                printf("-> %d ", head);
+            }
+        }
+    } else {
+        for (i = n - 1; i >= 0; i--) {
+            if (request[i] <= head) {
+                total += abs(request[i] - head);
+                head = request[i];
+                printf("-> %d ", head);
+            }
+        }
+
+        total += head;
+        head = 0;
+        printf("-> %d ", head);
+
+        for (i = 0; i < n; i++) {
+            if (request[i] > head) {
+                total += abs(request[i] - head);
+                head = request[i];
+                printf("-> %d ", head);
+            }
+        }
+    }
+
+    printf("\nTotal Head Movement = %d\n", total);
+
+    return 0;
+}
+
+Input:
+
+Enter number of requests: 8
+Enter requests:
+98 183 37 122 14 124 65 67
+Enter initial head position: 53
+Enter disk size: 200
+Enter direction (1 for right, 0 for left): 1
+
+Output:
+
+Seek Sequence: 53 -> 65 -> 67 -> 98 -> 122 -> 124 -> 183 -> 199 -> 37 -> 14
+Total Head Movement = 331
