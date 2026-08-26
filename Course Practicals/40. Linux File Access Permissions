@@ -1,0 +1,67 @@
+Linux File Permissions
+----------------------
+
+Linux provides three types of users:
+
+1. Owner (u)
+   - The user who owns the file.
+
+2. Group (g)
+   - Users belonging to the group associated with the file.
+
+3. Others (o)
+   - All other users.
+
+There are three basic file permissions:
+
+r - Read
+w - Write
+x - Execute
+
+Permission values:
+
+Read    = 4
+Write   = 2
+Execute = 1
+
+Example:
+
+-rwxr-xr--
+
+Meaning:
+
+-   = Regular file
+rwx = Owner permissions
+r-x = Group permissions
+r-- = Others permissions
+
+Therefore:
+
+Owner  = Read + Write + Execute = 7
+Group  = Read + Execute          = 5
+Others = Read                    = 4
+
+Permission = 754
+
+Common Linux commands:
+
+1. Display permissions:
+   ls -l
+
+2. Give read, write and execute permission to owner:
+   chmod u+rwx file.txt
+
+3. Give read permission to group:
+   chmod g+r file.txt
+
+4. Remove write permission from others:
+   chmod o-w file.txt
+
+5. Set permissions using numbers:
+   chmod 755 file.txt
+
+6. Change file owner:
+   chown user file.txt
+
+7. Change group:
+   chgrp group file.txt
