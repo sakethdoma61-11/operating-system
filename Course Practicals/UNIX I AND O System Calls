@@ -1,0 +1,67 @@
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <dirent.h>
+
+int main()
+{
+    int fd;
+    char buffer[100];
+    struct stat fileStat;
+    DIR *dir;
+    struct dirent *entry;
+
+    fd = open("sample.txt", O_CREAT | O_RDWR, 0644);
+
+    if (fd < 0)
+    {
+        perror("File opening failed");
+        return 1;
+    }
+
+    printf("File opened successfully.\n");
+
+    write(fd, "UNIX System Calls", 17);
+
+    printf("File Descriptor: %d\n", fcntl(fd, F_GETFD));
+
+    lseek(fd, 0, SEEK_SET);
+    read(fd, buffer, 17);
+    buffer[17] = '\0';
+
+    printf("Data using lseek(): %s\n", buffer);
+
+    if (stat("sample.txt", &fileStat) == 0)
+        printf("File Size: %ld bytes\n", fileStat.st_size);
+
+    close(fd);
+
+    dir = opendir(".");
+
+    if (dir == NULL)
+    {
+        perror("Directory opening failed");
+        return 1;
+    }
+
+    printf("\nDirectory Contents:\n");
+
+    while ((entry = readdir(dir)) != NULL)
+        printf("%s\n", entry->d_name);
+
+    closedir(dir);
+
+    return 0;
+}
+OUTPUT:
+File opened successfully.
+File Descriptor: 3
+Data using lseek(): UNIX System Calls
+File Size: 17 bytes
+
+Directory Contents:
+.
+..
+sample.txt
+program25_io_system_calls.c
